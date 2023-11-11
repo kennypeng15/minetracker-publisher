@@ -58,10 +58,10 @@ new_last_publish_date = datetime(1900, 1, 1).astimezone(pytz.utc)
 for minesweeper_game in minesweeper_chrome_history:
     # if the last published date is a more recent date than the game timestamp, skip.
     if minesweeper_game[1] <= last_published_date:
-        # print("skipping: game was played at " + str(minesweeper_game[1]) + ", last published date in file is " + str(last_published_date))
+        print("skipping: game was played at " + str(minesweeper_game[1]) + ", last published date in file is " + str(last_published_date))
         continue
     
-    # print("publishing: game was played at " + str(minesweeper_game[1]) + ", last published date in file is " + str(last_published_date))
+    print("publishing: game was played at " + str(minesweeper_game[1]) + ", last published date in file is " + str(last_published_date))
 
     # be sure to convert the datetime to a string here
     message_dict = {
@@ -69,8 +69,7 @@ for minesweeper_game in minesweeper_chrome_history:
         "game-timestamp": str(minesweeper_game[1]),
         "failsafe": os.environ['PERSONAL_SALT']
     }
-    # we have to dumps twice in order for the JSON string to be escaped as we want
-    serialized_message = json.dumps(json.dumps(message_dict))
+    serialized_message = json.dumps(message_dict)
     
     # actually write to SNS
     response = topic.publish(Message=serialized_message)
