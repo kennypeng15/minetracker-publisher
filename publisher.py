@@ -7,6 +7,7 @@ from time import sleep
 import json
 import os
 import pytz
+import sys
 
 # load necessary environment variables
 dotenv_path = join(dirname(__file__), '.env')
@@ -53,34 +54,80 @@ if last_published_exists:
         if s:
             last_published_date = datetime.strptime(s, '%Y-%m-%d %H:%M:%S%z').astimezone(pytz.utc)
 
-new_last_publish_date = datetime(1900, 1, 1).astimezone(pytz.utc)
-# use minesweeper_chrome_history[:N] to get the first N entries
-for minesweeper_game in minesweeper_chrome_history:
-    # if the last published date is a more recent date than the game timestamp, skip.
-    if minesweeper_game[1] <= last_published_date:
-        print("skipping: game was played at " + str(minesweeper_game[1]) + ", last published date in file is " + str(last_published_date))
-        continue
-    
-    print("publishing: game was played at " + str(minesweeper_game[1]) + ", last published date in file is " + str(last_published_date))
+# filter down the history to just entries where the timestamp is newer than the last published date
+# minesweeper_chrome_history is already sorted to begin with (earliest entries come first), so no need to worry about sorting
+# TODO: consider if this should be >=
+# there is a possibility that two games share the same access time in history
+filtered_minesweeper_chrome_history = [h for h in minesweeper_chrome_history if h[1] > last_published_date]
+filtered_length = len(filtered_minesweeper_chrome_history)
 
-    # be sure to convert the datetime to a string here
+# if there aren't any entries in the filtered list, return, since there's nothing to do
+if filtered_length <= 0:
+    print("No new entries to publish. Terminating.")
+    # exit code 0 to indicate success
+    sys.exit(0)
+
+# print some helpful information, and ask for confirmation before proceeding
+print("The last published entry's date is " + str(last_published_date) + ".")
+print("There are " + str(filtered_length) + " minesweeper game entries in Chrome history that haven't been published.")
+start_confirmation = input("Proceed? (y/n): ")
+if start_confirmation.strip().lower() != "y":
+    print("Confirmation was not supplied. Terminating.")
+    sys.exit(0)
+
+print("Confirmation supplied. Proceeding.")
+# instantiate variables to keep track of the last date we've published in this session,
+# and track how many games we've published this session
+new_last_publish_date = datetime(1900, 1, 1).astimezone(pytz.utc)
+count = 0
+
+# variables that control batch size and sleep duration
+sleep_delay_in_minutes = 60
+batch_size = 100
+prompt_for_continue = True
+
+for minesweeper_game in filtered_minesweeper_chrome_history:
+    # print information about what we're publishing
+    print("publishing: game was played at " + str(minesweeper_game[1]) + ", last published date prior to this session is " + str(last_published_date))
+
+    # build the message to publish, and actually send it
     message_dict = {
         "game-url": minesweeper_game[0],
         "game-timestamp": str(minesweeper_game[1]),
         "failsafe": os.environ['PERSONAL_SALT']
     }
     serialized_message = json.dumps(message_dict)
-    
-    # actually write to SNS
     response = topic.publish(Message=serialized_message)
 
+    # increment variables
+    count = count + 1
     if minesweeper_game[1] > new_last_publish_date:
         new_last_publish_date = minesweeper_game[1]
-    
-    # sleep a couple seconds, just to make sure we don't overload anything
-    print("sleeping")
-    sleep(3)
 
-# update the last_publish_date file
+    # batch control - we don't want to inundate lambda, so we delay after batches
+    # can consider using publish_batch boto3 ...
+    if count % batch_size == 0:
+        print("Batch of " + str(batch_size) + " games has been published. Writing an updated last publish date to file.")
+        with open(last_published_path, 'w') as f:
+            f.write(str(new_last_publish_date))
+        print(str(count) + " games in total have been published this session, out of " + str(filtered_length) + " in (filtered) history.")
+
+        print("Sleeping for " + str(sleep_delay_in_minutes) + " minutes. User will be prompted to resume after sleeping.")
+        print("Current time: " + str(datetime.now()))
+        print("Resuming time: " + str(datetime.now() + timedelta(minutes=sleep_delay_in_minutes)))
+        sleep(60 * sleep_delay_in_minutes)
+
+        # still prompt for user confirmation, just as a failsafe.
+        if prompt_for_continue:
+            continue_confirmation = input("Resumed. Continue publishing? (y/n): ")
+            if continue_confirmation.strip().lower() != "y":
+                print("Confirmation was not supplied. Terminating.")
+                sys.exit(0)
+            else:
+                print("Confirmation was supplied. Proceeding.")
+        else:
+            print("Resumed. Continuing immediately.")
+
+# do a final update of the last publish date before finishing execution.
 with open(last_published_path, 'w') as f:
     f.write(str(new_last_publish_date))
