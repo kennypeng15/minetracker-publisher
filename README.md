@@ -27,13 +27,5 @@ Ideas:
             - may be best just to use geq ...
 
 Progress: (i.e., last last-published date)
-- As of Nov. 15, 2023:
-    - 2000 items scraped, last published date 2023-08-12 07:00:36+00:00
-- As of Nov. 16, 2023:
-    - 3000; last published date: 2023-08-16 06:28:11+00:00
-- As of Nov. 17, 2023:
-    - 3400; last published date: 2023-08-17 07:19:16+00:00
-- As of Nov. 28, 2023:
-    - 3500; last published date: 2023-08-17 07:29:01+00:00
-- As oof Nov. 29, 2023:
+- As of Nov. 29, 2023:
     - 3700; last published date: 2023-08-18 08:10:45+00:00
