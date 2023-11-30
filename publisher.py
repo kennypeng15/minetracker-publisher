@@ -74,60 +74,100 @@ start_confirmation = input("Proceed? (y/n): ")
 if start_confirmation.strip().lower() != "y":
     print("Confirmation was not supplied. Terminating.")
     sys.exit(0)
+print("Confirmation supplied. Asking more questions...")
 
-print("Confirmation supplied. Proceeding.")
+# variables that control batch size and sleep duration
+sleep_delay_in_minutes = 65
+batch_size = 100
+prompt_for_continue = True
+
+# prompt user - ask if they want to manually confirm between batches
+while(True):
+    need_between_batch_confirmation = input("Do you want to have to manually enter confirmation between each batch? (y/n): ")
+    processed_batch_confirmation = need_between_batch_confirmation.strip().lower()
+    if (processed_batch_confirmation == "y" or processed_batch_confirmation == "n"):
+        break
+    else:
+        print("Unrecognized input, please try again.")
+if (processed_batch_confirmation == "n"):
+    prompt_for_continue = False
+    print("User will not have to re-enter confirmation between batches. Program can be safely terminated between batches. Proceeding...")
+else:
+    print("User will have to re-enter confirmation between batches. Proceeding...")
+
+# confirm one more time
+print(f"Requests will be sent {batch_size} at a time, with a {sleep_delay_in_minutes} minute delay between each batch.")
+if prompt_for_continue:
+    print("User will be required to re-confirm between every batch.")
+else:
+    print("User will not have to confirm between batches.")
+start_confirmation = input("Proceed? (y/n): ")
+if start_confirmation.strip().lower() != "y":
+    print("Confirmation was not supplied. Terminating.")
+    sys.exit(0)
+
 # instantiate variables to keep track of the last date we've published in this session,
 # and track how many games we've published this session
 new_last_publish_date = datetime(1900, 1, 1).astimezone(pytz.utc)
 count = 0
+try:
+    for minesweeper_game in filtered_minesweeper_chrome_history:
+        # print information about what we're publishing
+        print("publishing: game was played at " + str(minesweeper_game[1]) + ", last published date prior to this session is " + str(last_published_date))
 
-# variables that control batch size and sleep duration
-sleep_delay_in_minutes = 60
-batch_size = 100
-prompt_for_continue = True
+        # build the message to publish, and actually send it
+        message_dict = {
+            "game-url": minesweeper_game[0],
+            "game-timestamp": str(minesweeper_game[1]),
+            "failsafe": os.environ['PERSONAL_SALT']
+        }
+        serialized_message = json.dumps(message_dict)
+        response = topic.publish(Message=serialized_message)
 
-for minesweeper_game in filtered_minesweeper_chrome_history:
-    # print information about what we're publishing
-    print("publishing: game was played at " + str(minesweeper_game[1]) + ", last published date prior to this session is " + str(last_published_date))
+        # increment variables
+        count = count + 1
+        if minesweeper_game[1] > new_last_publish_date:
+            new_last_publish_date = minesweeper_game[1]
 
-    # build the message to publish, and actually send it
-    message_dict = {
-        "game-url": minesweeper_game[0],
-        "game-timestamp": str(minesweeper_game[1]),
-        "failsafe": os.environ['PERSONAL_SALT']
-    }
-    serialized_message = json.dumps(message_dict)
-    response = topic.publish(Message=serialized_message)
+        # batch control - we don't want to inundate lambda, so we delay after batches
+        # can consider using publish_batch boto3 ...
+        if count % batch_size == 0:
+            print("Batch of " + str(batch_size) + " games has been published. Writing an updated last publish date to file.")
+            with open(last_published_path, 'w') as f:
+                f.write(str(new_last_publish_date))
+            print(str(count) + " games in total have been published this session, out of " + str(filtered_length) + " in (filtered) history.")
 
-    # increment variables
-    count = count + 1
-    if minesweeper_game[1] > new_last_publish_date:
-        new_last_publish_date = minesweeper_game[1]
-
-    # batch control - we don't want to inundate lambda, so we delay after batches
-    # can consider using publish_batch boto3 ...
-    if count % batch_size == 0:
-        print("Batch of " + str(batch_size) + " games has been published. Writing an updated last publish date to file.")
-        with open(last_published_path, 'w') as f:
-            f.write(str(new_last_publish_date))
-        print(str(count) + " games in total have been published this session, out of " + str(filtered_length) + " in (filtered) history.")
-
-        print("Sleeping for " + str(sleep_delay_in_minutes) + " minutes. User will be prompted to resume after sleeping.")
-        print("Current time: " + str(datetime.now()))
-        print("Resuming time: " + str(datetime.now() + timedelta(minutes=sleep_delay_in_minutes)))
-        sleep(60 * sleep_delay_in_minutes)
-
-        # still prompt for user confirmation, just as a failsafe.
-        if prompt_for_continue:
-            continue_confirmation = input("Resumed. Continue publishing? (y/n): ")
-            if continue_confirmation.strip().lower() != "y":
-                print("Confirmation was not supplied. Terminating.")
-                sys.exit(0)
+            # change this to accoount for prompt_for_continue
+            print("Sleeping for " + str(sleep_delay_in_minutes) + " minutes.")
+            print("Current time: " + str(datetime.now()))
+            print("Resuming time: " + str(datetime.now() + timedelta(minutes=sleep_delay_in_minutes)))
+            if prompt_for_continue:
+                print("User will be prompted to resume after sleeping.")
             else:
-                print("Confirmation was supplied. Proceeding.")
-        else:
-            print("Resumed. Continuing immediately.")
+                print("Program will resume execution automatically.")
+            sleep(60 * sleep_delay_in_minutes)
+
+            # still prompt for user confirmation, just as a failsafe; this can be overridden by changing 
+            # the value for prompt_for_continue.
+            if prompt_for_continue:
+                continue_confirmation = input("Resumed. Continue publishing? (y/n): ")
+                if continue_confirmation.strip().lower() != "y":
+                    print("Confirmation was not supplied. Terminating.")
+                    sys.exit(0)
+                else:
+                    print("Confirmation was supplied. Proceeding.")
+            else:
+                print("Resumed. Continuing immediately.")
+
+except KeyboardInterrupt:
+    # newline, purely for aesthetics since on some systems CTRL + C shows up as a character on the terminal
+    print("")
+    print("Keyboard interrupt registered. Writing updated last published date to file and terminating.")
+    with open(last_published_path, 'w') as f:
+        f.write(str(new_last_publish_date))
+    sys.exit(0)
 
 # do a final update of the last publish date before finishing execution.
+print("Finished publishing entries in history. Writing updated last published date written to file and terminating.")
 with open(last_published_path, 'w') as f:
     f.write(str(new_last_publish_date))

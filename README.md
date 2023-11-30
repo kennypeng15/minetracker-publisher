@@ -15,6 +15,25 @@ Considerations:
 - however, we don't want to inundate Lambda - we want to space out batches of requests so we have turnover in execution environments
 - hence, we batch send 100 requests at a time, then sleep for 60 minutes (these values are configurable)
 
+Ideas:
+- if two entries in history have the same access time, its possible to skip some entries
+- scenario: entry 100 at 1/1/1 12:00:00, entry 101 at 1/1/1 12:00:00
+    - batch size 100 - stop executing after entry 100
+    - last pubished date is 1/1/1 12:00:00, and since we have the strictly greater than operator, entry 101 will be skipped
+    - solutions:
+        - use greater than or equal to operator during comparisons - easy, but may lead to some re-processing (fine?)
+        - seek forward in history; if the timestamp of the next entry is equal to the current timestamp at the end of a batch, process that as well. repeat
+            - complicated!
+            - may be best just to use geq ...
+
 Progress: (i.e., last last-published date)
 - As of Nov. 15, 2023:
-    - 1500 items scraped, last published date 2023-08-09 04:46:30+00:00
+    - 2000 items scraped, last published date 2023-08-12 07:00:36+00:00
+- As of Nov. 16, 2023:
+    - 3000; last published date: 2023-08-16 06:28:11+00:00
+- As of Nov. 17, 2023:
+    - 3400; last published date: 2023-08-17 07:19:16+00:00
+- As of Nov. 28, 2023:
+    - 3500; last published date: 2023-08-17 07:29:01+00:00
+- As oof Nov. 29, 2023:
+    - 3700; last published date: 2023-08-18 08:10:45+00:00
