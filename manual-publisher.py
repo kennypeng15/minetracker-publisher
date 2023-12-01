@@ -18,6 +18,8 @@ sns = boto3.resource('sns')
 topic = sns.create_topic(Name=os.environ['SNS_TOPIC_NAME'])
 
 while(True):
+    # IDEA: take in the SQS payload instead!
+    # and then still print out confirmation, it's probably infinitely easier for the end-user this way
     game_url = input("Enter the URL of the minesweeper game you want to publish: ")
     game_timestamp = input("Enter the timestamp that the URL entered was accessed: ")
 
