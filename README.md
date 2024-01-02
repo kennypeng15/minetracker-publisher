@@ -7,6 +7,7 @@ Notes:
 
 Invocation:
 - as simple as `python publisher.py`, or `python manual-publisher.py`
+- for safety, can invoke `python check.py` beforehand
 
 Considerations:
 - each log group that appears (in cloudwatch) is a single execution environment: https://docs.aws.amazon.com/lambda/latest/operatorguide/log-structure.html
