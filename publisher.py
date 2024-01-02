@@ -77,8 +77,11 @@ if start_confirmation.strip().lower() != "y":
 print("Confirmation supplied. Asking more questions...")
 
 # variables that control batch size and sleep duration
-sleep_delay_in_minutes = 65
+sleep_delay_in_minutes = 45
 batch_size = 100
+
+# this one shouldn't technically be configured here - users will be prompted by the
+# program before running if they want to manually confirm
 prompt_for_continue = True
 
 # prompt user - ask if they want to manually confirm between batches

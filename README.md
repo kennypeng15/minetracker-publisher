@@ -25,7 +25,10 @@ Ideas:
         - seek forward in history; if the timestamp of the next entry is equal to the current timestamp at the end of a batch, process that as well. repeat
             - complicated!
             - may be best just to use geq ...
+- TODO: add a print statement that says that, at any time while the program is sleeping, CTRL + C can be used to safely stop execution.
+- TODO: add a local python program (local-scraper.py) that basically has just the content of the lambda, that can be run locally in case anything breaks.
+    - perhaps this should be run (tested?) locally, before a publisher batch, to ensure that the lambda is functioning as desired.
 
 Progress: (i.e., last last-published date)
-- As of Nov. 29, 2023:
-    - 3700; last published date: 2023-08-18 08:10:45+00:00
+- As of Dec. 20, 2023:
+    - 8500; last published date 2023-09-13 21:22:11+00:00
