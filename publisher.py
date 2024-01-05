@@ -148,6 +148,7 @@ try:
                 print("User will be prompted to resume after sleeping.")
             else:
                 print("Program will resume execution automatically.")
+            print("At any time during sleeping, CTRL+C can be used to safely exit the program.")
             sleep(60 * SLEEP_DELAY_IN_MINUTES)
 
             # still prompt for user confirmation, just as a failsafe; this can be overridden by changing 
