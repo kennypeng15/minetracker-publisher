@@ -1,7 +1,7 @@
 # minetracker-publisher
 ---
 
-## Summary and Design
+## Overview and Design
 A suite of python applications that scans local Chrome history for minesweeper.online games,
 with the ultimate goal of sending game URLs and the timestamps at which they were accessed to an 
 AWS Lambda function (via an SNS endpoint).
@@ -76,4 +76,4 @@ This can be monitored in CloudWatch: each log group that appears is a single exe
 
 ## Progress (i.e., last last-published date)
 As of Jan. 4, 2024:
-- 10600 entries published; last published date 2023-09-14 22:57:28+00:00
+- 11000 entries published; last published date 2023-09-15 06:31:23+00:00
