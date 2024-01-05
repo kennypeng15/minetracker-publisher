@@ -77,8 +77,8 @@ if start_confirmation.strip().lower() != "y":
 print("Confirmation supplied. Asking more questions...")
 
 # variables that control batch size and sleep duration
-sleep_delay_in_minutes = 45
-batch_size = 100
+SLEEP_DELAY_IN_MINUTES = 45
+BATCH_SIZE = 100
 
 # this one shouldn't technically be configured here - users will be prompted by the
 # program before running if they want to manually confirm
@@ -99,7 +99,7 @@ else:
     print("User will have to re-enter confirmation between batches. Proceeding...")
 
 # confirm one more time
-print(f"Requests will be sent {batch_size} at a time, with a {sleep_delay_in_minutes} minute delay between each batch.")
+print(f"Requests will be sent {BATCH_SIZE} at a time, with a {SLEEP_DELAY_IN_MINUTES} minute delay between each batch.")
 if prompt_for_continue:
     print("User will be required to re-confirm between every batch.")
 else:
@@ -134,21 +134,21 @@ try:
 
         # batch control - we don't want to inundate lambda, so we delay after batches
         # can consider using publish_batch boto3 ...
-        if count % batch_size == 0:
-            print("Batch of " + str(batch_size) + " games has been published. Writing an updated last publish date to file.")
+        if count % BATCH_SIZE == 0:
+            print("Batch of " + str(BATCH_SIZE) + " games has been published. Writing an updated last publish date to file.")
             with open(last_published_path, 'w') as f:
                 f.write(str(new_last_publish_date))
             print(str(count) + " games in total have been published this session, out of " + str(filtered_length) + " in (filtered) history.")
 
             # change this to accoount for prompt_for_continue
-            print("Sleeping for " + str(sleep_delay_in_minutes) + " minutes.")
+            print("Sleeping for " + str(SLEEP_DELAY_IN_MINUTES) + " minutes.")
             print("Current time: " + str(datetime.now()))
-            print("Resuming time: " + str(datetime.now() + timedelta(minutes=sleep_delay_in_minutes)))
+            print("Resuming time: " + str(datetime.now() + timedelta(minutes=SLEEP_DELAY_IN_MINUTES)))
             if prompt_for_continue:
                 print("User will be prompted to resume after sleeping.")
             else:
                 print("Program will resume execution automatically.")
-            sleep(60 * sleep_delay_in_minutes)
+            sleep(60 * SLEEP_DELAY_IN_MINUTES)
 
             # still prompt for user confirmation, just as a failsafe; this can be overridden by changing 
             # the value for prompt_for_continue.
