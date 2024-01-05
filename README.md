@@ -14,7 +14,7 @@ are sent at regular intervals; the rationale for doing so is discussed later.
 
 `check.py` contains a simple validation script, designed to make sure that minesweeper.online is available and that 
 the Lambda function invoked by the SNS endpoint is behaving as expected. 
-This is achieved by copying over the scraping and processing code used in the `minetracker-lambda` project and using that code to
+This is achieved by copying over the scraping and processing code used in the `minetracker-lambda` (https://github.com/kennypeng15/minetracker-lambda) project and using that code to
 scrape a known valid minesweeper.online game, comparing values to expectations.
 `check.py` is thus designed to be run as a precursor to `publisher.py`.
 
