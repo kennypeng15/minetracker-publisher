@@ -1,6 +1,7 @@
 # minetracker-publisher
-## Summary and Design
 ---
+
+## Summary and Design
 A suite of python applications that scans local Chrome history for minesweeper.online games,
 with the ultimate goal of sending game URLs and the timestamps at which they were accessed to an 
 AWS Lambda function (via an SNS endpoint).
@@ -26,7 +27,6 @@ corresponding SQS deadletter queue even though manual inspection reveals it has 
 
 
 ## Invocation
----
 The recommended workflow is to invoke `python check.py` first.
 
 If console output indicates success, invoke `python publisher.py` or `python manual-publisher.py` and 
@@ -36,7 +36,6 @@ If not successful, debugging the scraping code in `check.py` or verifying minesw
 
 
 ## Configuration
----
 - `last-published.txt` shoud contain only a string, which is the UTC timestamp of the last browser history URL sent to SNS.
     - This is only considered when using `publisher.py`.
     - `manual-publisher.py` ignores the last published date and instead asks users directly for game URLs and timestamps.
@@ -45,7 +44,6 @@ If not successful, debugging the scraping code in `check.py` or verifying minesw
     - More discussion on these two variables below.
 
 ## Monitoring and Rationale
----
 We want to avoid the problem of IP bans (i.e., too many scraping requests from the same IP address in Lambda).
 
 Although Lambda environments are ephemeral, they stay online for some time, and continuously sending requests can lead to 
@@ -65,7 +63,6 @@ This can be monitored in CloudWatch: each log group that appears is a single exe
 
 
 ## Future Work and Ideas:
----
 - if two entries in history have the same access time, its possible to skip some entries
 - scenario: entry 100 at 1/1/1 12:00:00, entry 101 at 1/1/1 12:00:00
     - batch size 100 - stop executing after entry 100
@@ -80,6 +77,5 @@ This can be monitored in CloudWatch: each log group that appears is a single exe
     - perhaps this should be run (tested?) locally, before a publisher batch, to ensure that the lambda is functioning as desired.
 
 ## Progress (i.e., last last-published date)
----
 As of Jan. 4, 2024:
 - 10600 entries published; last published date 2023-09-14 22:57:28+00:00
