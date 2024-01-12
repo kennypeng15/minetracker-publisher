@@ -1,6 +1,9 @@
 # minetracker-publisher
 ---
 
+(this README focuses on the publisher project only. for the write-up about MineTracker as a whole, 
+see https://kennypeng15.github.io/projects/minetracker/index.html)
+
 ## Overview and Design
 A suite of python applications that scans local Chrome history for minesweeper.online games,
 with the ultimate goal of sending game URLs and the timestamps at which they were accessed to an 
@@ -73,7 +76,8 @@ This can be monitored in CloudWatch: each log group that appears is a single exe
             - complicated!
             - may be best just to use geq ...
 - think about forcing check.py to execute before every scraping run?
+- print out how many entries were published after program termination
 
 ## Progress (i.e., last last-published date)
-As of Jan. 4, 2024:
-- 11000 entries published; last published date 2023-09-15 06:31:23+00:00
+As of Jan. 7, 2024:
+- 13000 entries published; last published date 2023-09-18 03:14:18+00:00
