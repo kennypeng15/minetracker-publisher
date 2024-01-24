@@ -36,6 +36,8 @@ for history_item in his:
 
 print("Finished scanning browser history complete.")
 print("Found " + str(len(minesweeper_chrome_history)) + " minesweeper games in local Chrome history.")
+print("Earliest date: " + str(min(minesweeper_chrome_history, key=lambda t: t[1])[1]))
+print("Latest date: " + str(max(minesweeper_chrome_history, key=lambda t: t[1])[1]))
 
 # read in the last-published file
 # if it doesn't exist, create it and populate it at the end of execution. use the minimum date as the last published date.
@@ -166,12 +168,14 @@ try:
 except KeyboardInterrupt:
     # newline, purely for aesthetics since on some systems CTRL + C shows up as a character on the terminal
     print("")
-    print("Keyboard interrupt registered. Writing updated last published date to file and terminating.")
+    print("Keyboard interrupt registered. " + str(count) + " total entries were published this session.")
+    print("Writing updated last published date to file and terminating.")
     with open(last_published_path, 'w') as f:
         f.write(str(new_last_publish_date))
     sys.exit(0)
 
 # do a final update of the last publish date before finishing execution.
-print("Finished publishing entries in history. Writing updated last published date written to file and terminating.")
+print("Finished publishing entries in history. " + str(count) + " total entries were published this session.")
+print("Writing updated last published date written to file and terminating.")
 with open(last_published_path, 'w') as f:
     f.write(str(new_last_publish_date))

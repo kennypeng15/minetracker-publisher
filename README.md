@@ -39,7 +39,7 @@ If not successful, debugging the scraping code in `check.py` or verifying minesw
 
 
 ## Configuration
-- `last-published.txt` shoud contain only a string, which is the UTC timestamp of the last browser history URL sent to SNS.
+- `last-published.txt` should contain only a string, which is the UTC timestamp of the last browser history URL sent to SNS.
     - This is only considered when using `publisher.py`.
     - `manual-publisher.py` ignores the last published date and instead asks users directly for game URLs and timestamps.
 - A `.env` file is expected.
@@ -69,15 +69,14 @@ This can be monitored in CloudWatch: each log group that appears is a single exe
 - if two entries in history have the same access time, its possible to skip some entries
 - scenario: entry 100 at 1/1/1 12:00:00, entry 101 at 1/1/1 12:00:00
     - batch size 100 - stop executing after entry 100
-    - last pubished date is 1/1/1 12:00:00, and since we have the strictly greater than operator, entry 101 will be skipped
+    - last published date is 1/1/1 12:00:00, and since we have the strictly greater than operator, entry 101 will be skipped
     - solutions:
         - use greater than or equal to operator during comparisons - easy, but may lead to some re-processing (fine?)
         - seek forward in history; if the timestamp of the next entry is equal to the current timestamp at the end of a batch, process that as well. repeat
             - complicated!
             - may be best just to use geq ...
 - think about forcing check.py to execute before every scraping run?
-- print out how many entries were published after program termination
 
 ## Progress (i.e., last last-published date)
-As of Jan. 7, 2024:
-- 13000 entries published; last published date 2023-09-18 03:14:18+00:00
+As of Jan. 23, 2024:
+- 17100 entries published; last published date 2023-10-03 02:28:46+00:00
