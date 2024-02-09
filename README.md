@@ -79,4 +79,4 @@ This can be monitored in CloudWatch: each log group that appears is a single exe
 
 ## Progress (i.e., last last-published date)
 As of Feb. 8, 2024:
-- 23800 entries published; last published date 2023-11-05 22:43:30+00:00
+- 25015 entries published; all caught up.
