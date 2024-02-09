@@ -78,5 +78,5 @@ This can be monitored in CloudWatch: each log group that appears is a single exe
 - think about forcing check.py to execute before every scraping run?
 
 ## Progress (i.e., last last-published date)
-As of Jan. 23, 2024:
-- 17100 entries published; last published date 2023-10-03 02:28:46+00:00
+As of Feb. 8, 2024:
+- 23800 entries published; last published date 2023-11-05 22:43:30+00:00
