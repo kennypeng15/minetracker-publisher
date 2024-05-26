@@ -45,7 +45,7 @@ def process_scraped_minesweeper_game(result_block_text, difficulty_selector_html
     board_3bv_value = int(raw_3bv_value) if board_solved else int(raw_3bv_value.split(" / ")[1])
 
     # calculate the 3bvp/s value
-    game_3bvps_line = next((x for x in split_result_text if x.startswith("3BV/sec:")), "")
+    game_3bvps_line = next((x for x in split_result_text if x.startswith("3BV/s:")), "")
     the_3bvps_value = -1.0 if not game_3bvps_line else float(game_3bvps_line.split(' ')[1])
 
     # calculate click values
